@@ -2,6 +2,9 @@ package chapter01;
 
 public class PrimeGenerator extends Thread {
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
 	public void run() {
 		long number = 1L;
