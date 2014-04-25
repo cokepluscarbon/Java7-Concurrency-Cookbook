@@ -1,20 +1,29 @@
 package chapter03;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PrintQueue {
 	private final Semaphore semaphore;
+	private boolean freePrinters[];
+	private Lock lockPrinters;
 
 	public PrintQueue() {
 		this.semaphore = new Semaphore(1);
+		this.freePrinters = new boolean[3];
+		for (int i = 0; i < 3; i++) {
+			freePrinters[i] = true;
+		}
+		lockPrinters = new ReentrantLock();
 	}
 
 	public void printJob(Object document) {
 		try {
 			semaphore.acquire();
 			long duration = (long) (Math.random() * 1000);
-			System.out.printf("%s: PrintQueue: Printing a Job during %d millisecond\n", Thread.currentThread().getName(),
-					duration);
+			System.out.printf("%s: PrintQueue: Printing a Job during %d millisecond\n", Thread.currentThread()
+					.getName(), duration);
 			Thread.sleep(duration);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
