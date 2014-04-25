@@ -1,6 +1,7 @@
 package chapter03;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -10,7 +11,7 @@ public class PrintQueue {
 	private Lock lockPrinters;
 
 	public PrintQueue() {
-		this.semaphore = new Semaphore(1);
+		this.semaphore = new Semaphore(3);
 		this.freePrinters = new boolean[3];
 		for (int i = 0; i < 3; i++) {
 			freePrinters[i] = true;
@@ -21,15 +22,39 @@ public class PrintQueue {
 	public void printJob(Object document) {
 		try {
 			semaphore.acquire();
-			long duration = (long) (Math.random() * 1000);
-			System.out.printf("%s: PrintQueue: Printing a Job during %d millisecond\n", Thread.currentThread()
-					.getName(), duration);
-			Thread.sleep(duration);
+			int assignedPrinter = getPrinter();
+
+			long duration = (long) (Math.random() * 10);
+			System.out
+					.printf("%s: PrintQueue: Printing a Job in Printer %d during %d seconds\n",
+							Thread.currentThread().getName(), assignedPrinter,
+							duration);
+			TimeUnit.SECONDS.sleep(duration);
+			freePrinters[assignedPrinter] = true;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			semaphore.release();
 		}
+	}
+
+	private int getPrinter() {
+		int ret = -1;
+		try {
+			lockPrinters.lock();
+			for (int i = 0; i < freePrinters.length; i++) {
+				if (freePrinters[i]) {
+					ret = i;
+					freePrinters[i] = false;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			lockPrinters.unlock();
+		}
+		return ret;
 	}
 
 	public static void main(String[] args) {
@@ -54,8 +79,10 @@ class Job implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.printf("%s: Going to print a job\n", Thread.currentThread().getName());
+		System.out.printf("%s: Going to print a job\n", Thread.currentThread()
+				.getName());
 		printQueue.printJob(new Object());
-		System.out.printf("%s: The document has been printed\n", Thread.currentThread().getName());
+		System.out.printf("%s: The document has been printed\n", Thread
+				.currentThread().getName());
 	}
 }
