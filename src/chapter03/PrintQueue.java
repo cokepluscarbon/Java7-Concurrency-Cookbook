@@ -1,6 +1,7 @@
 package chapter03;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,10 +23,20 @@ public class PrintQueue {
 		try {
 			semaphore.acquire();
 			int assignedPrinter = getPrinter();
+<<<<<<< HEAD
 			long duration = (long) (Math.random() * 1000);
 			System.out.printf("%s: PrintQueue: Printing a Job during %d millisecond\n", Thread.currentThread()
 					.getName(), duration);
 			Thread.sleep(duration);
+=======
+
+			long duration = (long) (Math.random() * 10);
+			System.out
+					.printf("%s: PrintQueue: Printing a Job in Printer %d during %d seconds\n",
+							Thread.currentThread().getName(), assignedPrinter,
+							duration);
+			TimeUnit.SECONDS.sleep(duration);
+>>>>>>> 33e75d60bb3c0c068bd2b2b06eae9e47df622606
 			freePrinters[assignedPrinter] = true;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -45,9 +56,16 @@ public class PrintQueue {
 					break;
 				}
 			}
+<<<<<<< HEAD
 			lockPrinters.unlock();
 		} catch (Exception e) {
 			e.printStackTrace();
+=======
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			lockPrinters.unlock();
+>>>>>>> 33e75d60bb3c0c068bd2b2b06eae9e47df622606
 		}
 		return ret;
 	}
@@ -74,8 +92,10 @@ class Job implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.printf("%s: Going to print a job\n", Thread.currentThread().getName());
+		System.out.printf("%s: Going to print a job\n", Thread.currentThread()
+				.getName());
 		printQueue.printJob(new Object());
-		System.out.printf("%s: The document has been printed\n", Thread.currentThread().getName());
+		System.out.printf("%s: The document has been printed\n", Thread
+				.currentThread().getName());
 	}
 }
